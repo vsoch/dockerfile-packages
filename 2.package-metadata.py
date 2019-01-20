@@ -118,36 +118,8 @@ for p in range(0, len(apt.root.children)):
         continue
 
     print('Parsing %s, %s of %s' %(package, p, len(apt.root.children)))
-    command = ["docker", "run", "-it", "vanessa/apt-package-dependencies", package]
+    command = ["docker", "run", "-it", "vanessa/ubuntu-dependencies:16.04", package]
     result = run_command(command)
-    lines = result['message'].split('\r\n')
-
-    dependencies = dict()
-
-    # First line is the package name
-    current = ""
-    for l in range(1, len(lines)):
-        line = lines[l]
-        if not line:
-            continue
-        if "Depends" in line:
-            current = "Depends"
-            line = line.replace('Depends:', '').split()
-        elif "Suggests" in line:
-            current = "Suggests"
-            line = line.replace('Suggests:', '').split()
-        elif "Replaces" in line:
-            current = "Replaces"
-            line = line.replace('Replaces:', '').split()
-        else:
-            line = line.strip()
-        if current not in dependencies:
-            dependencies[current] = []
-        if isinstance(line, list):
-            line = line[0]
-        # Clean up
-        line = line.strip('|').strip('&')
-        dependencies[current].append(line)
-
-    aptmeta[package] = dependencies
+    dependencies = json.loads(result['message'])
     print(dependencies)
+    aptmeta[package] = dependencies
