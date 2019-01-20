@@ -55,6 +55,9 @@ def main():
         if not line:
             continue
 
+        # The first line has a pipe
+        line = line.strip('|').strip('&')
+
         if "PreDepends" in line:
             current = "PreDepends"
             line = line.replace('PreDepends:', '').split()
@@ -87,8 +90,6 @@ def main():
         if isinstance(line, list):
             line = line[0]
 
-        # Clean up
-        line = line.strip('|').strip('&')
         if len(line) > 0:
             dependencies[current].append(line)
 
