@@ -56,7 +56,7 @@ def main():
             continue
 
         # The first line has a pipe
-        line = line.strip('|').strip('&')
+        line = line.strip().strip('|').strip('&')
 
         if "PreDepends" in line:
             current = "PreDepends"
