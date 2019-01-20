@@ -37,6 +37,8 @@ And export the final package matrices, not including versions.
 
 ## 2. Package Metadata
 
+### Pip
+
 This approach was developed because it is no longer possible to scrape any sort
 of metadata or Dockerfile from the update Docker website. Thus, we can retrieve
 metadata about packages, and use that to say something about the container.
@@ -53,5 +55,20 @@ export LIBRARIESIO_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 When we finish this step, we have created [pypi-metadata.pkl](pypi-metadata.pkl)
 and [pypi-metadata.json](pypi-metadata.json)
+
+### Apt
+
+Apt was harder to do because there isn't package data available on libraries.io.
+Thus, I created a Docker container in the [docker](docker) folder that serves
+one simple purpose - to install and then use `apt-cache depends` to extract
+dependencies for a package. I chose a base image of 16.04 as an intermediate 
+between much older Ubuntu (debian) bases (e.g., 14.04) and much newer (18.04).
+It's not a perfect approach, but should serve to get a good set of data.
+
+Usage of the Docker container looks like this:
+
+```bash
+$ docker run -it vanessa/apt-package-dependencies adduser
+```
 
 **still in progress too**
