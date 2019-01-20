@@ -1,0 +1,90 @@
+version: 2.1
+
+orbs:
+  # https://circleci.com/orbs/registry/orb/circleci/docker-publish
+  docker-publish: circleci/docker-publish@0.1.3
+workflows:
+
+  # This workflow will be run on all branches but master (to test)
+  build_without_publishing_job:
+    jobs:
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          path: docker
+          dockerfile: docker/Dockerfile.12.04
+          deploy: false
+          tag: "12.04"
+          filters:
+            branches:
+              ignore: 
+                - master
+                - docs*
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          deploy: false
+          path: docker
+          dockerfile: docker/Dockerfile.14.04
+          tag: "14.04"
+          filters:
+            branches:
+              ignore: 
+                - master
+                - docs*
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          deploy: false
+          path: docker
+          dockerfile: docker/Dockerfile.16.04
+          tag: "16.04"
+          filters:
+            branches:
+              ignore: 
+                - master
+                - docs*
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          path: docker
+          dockerfile: docker/Dockerfile.18.04
+          deploy: false
+          tag: "18.04"
+          filters:
+            branches:
+              ignore: 
+                - master
+                - docs*
+
+  # This workflow will deploy images on merge to master only
+  docker_with_lifecycle:
+    jobs:
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          tag: "12.04"
+          path: docker
+          dockerfile: docker/Dockerfile.12.04
+          filters:
+            branches:
+             only: master
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          tag: "14.04"
+          path: docker
+          dockerfile: docker/Dockerfile.14.04
+          filters:
+            branches:
+             only: master
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          tag: "16.04"
+          path: docker
+          dockerfile: docker/Dockerfile.16.04
+          filters:
+            branches:
+             only: master
+      - docker-publish/publish:
+          image: vanessa/ubuntu-dependencies
+          tag: "18.04"
+          path: docker
+          dockerfile: docker/Dockerfile.18.04
+          filters:
+            branches:
+             only: master
