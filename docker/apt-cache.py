@@ -86,9 +86,11 @@ def main():
             dependencies[current] = []
         if isinstance(line, list):
             line = line[0]
+
         # Clean up
         line = line.strip('|').strip('&')
-        dependencies[current].append(line)
+        if len(line) > 0:
+            dependencies[current].append(line)
 
     print(json.dumps(dependencies))
 
