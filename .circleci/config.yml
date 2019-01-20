@@ -13,7 +13,7 @@ workflows:
           path: docker
           dockerfile: docker/Dockerfile.12.04
           deploy: false
-          tag: 12.04
+          tag: "12.04"
           filters:
             branches:
               ignore: 
@@ -24,7 +24,7 @@ workflows:
           deploy: false
           path: docker
           dockerfile: docker/Dockerfile.14.04
-          tag: 14.04
+          tag: "14.04"
           filters:
             branches:
               ignore: 
@@ -35,7 +35,7 @@ workflows:
           deploy: false
           path: docker
           dockerfile: docker/Dockerfile.16.04
-          tag: 16.04
+          tag: "16.04"
           filters:
             branches:
               ignore: 
@@ -46,7 +46,7 @@ workflows:
           path: docker
           dockerfile: docker/Dockerfile.18.04
           deploy: false
-          tag: 18.04
+          tag: "18.04"
           filters:
             branches:
               ignore: 
@@ -58,7 +58,7 @@ workflows:
     jobs:
       - docker-publish/publish:
           image: vanessa/ubuntu-dependencies
-          tag: 12.04
+          tag: "12.04"
           path: docker
           dockerfile: docker/Dockerfile.12.04
           filters:
@@ -66,7 +66,7 @@ workflows:
              only: master
       - docker-publish/publish:
           image: vanessa/ubuntu-dependencies
-          tag: 14.04
+          tag: "14.04"
           path: docker
           dockerfile: docker/Dockerfile.14.04
           filters:
@@ -74,7 +74,7 @@ workflows:
              only: master
       - docker-publish/publish:
           image: vanessa/ubuntu-dependencies
-          tag: 16.04
+          tag: "16.04"
           path: docker
           dockerfile: docker/Dockerfile.16.04
           filters:
@@ -82,7 +82,7 @@ workflows:
              only: master
       - docker-publish/publish:
           image: vanessa/ubuntu-dependencies
-          tag: 18.04
+          tag: "18.04"
           path: docker
           dockerfile: docker/Dockerfile.18.04
           filters:
