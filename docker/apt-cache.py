@@ -86,13 +86,12 @@ def main():
             current = "Recommends"
             line = line.replace('Recommends:', '').split()
 
-        else:
-            line = line.strip()
-
         if current not in dependencies:
             dependencies[current] = []
         if isinstance(line, list):
             line = line[0]
+
+        line = line.strip()
 
         if len(line) > 0:
             dependencies[current].append(line)
