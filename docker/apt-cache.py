@@ -58,6 +58,10 @@ def main():
         # The first line has a pipe
         line = line.strip().strip('|').strip('&')
 
+        if "Breaks" in line:
+            current = "Breaks"
+            line = line.replace('Breaks:', '').split()
+
         if "PreDepends" in line:
             current = "PreDepends"
             line = line.replace('PreDepends:', '').split()

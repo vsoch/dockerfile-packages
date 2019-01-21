@@ -108,6 +108,8 @@ from containertree.utils import run_command
 # Instead, let's use a docker container to install a package and get
 # dependencies after
 
+apt = pickle.load(open('apt-tree.pkl', 'rb'))
+
 aptmeta = dict()
 for p in range(0, len(apt.root.children)):
     node = apt.root.children[p]
