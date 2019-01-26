@@ -31,9 +31,15 @@ and we both save the trees:
  - [apt-tree.pkl](apt-tree.pkl)
  - [pip-tree.pkl](pip-tree.pkl)
 
-And export the final package matrices, not including versions.
+And export the final package matrices, not including versions. These are
+written to:
 
-**in progress**
+ - [pip-vectors.csv](pip-vectors.csv)
+
+Note that apt-vectors.* isn't added, goes over the GitHub file size limit.
+For both apt and pip vectors, the containers that are parsed/seen are
+provided in [seen-containers.pkl](seen-containers.pkl)
+
 
 ## 2. Package Metadata
 
@@ -71,4 +77,5 @@ Usage of the Docker container looks like this:
 $ docker run -it vanessa/apt-package-dependencies adduser
 ```
 
-**still in progress too**
+Since some of the runs seemed to timeout, I used multiprocessing to set a limit
+of one minute for each, and ran 5 at a time.

@@ -62,7 +62,29 @@ for container in containers:
     seen.add(container)
     count +=1
 
-#TODO: stopped here:
-# 1. check on arxiv runs
-# 2. when we are done parsing Github orgs from the api (for dockerfiles) run then through Git cloning
-# 3. when container apt/pip trees done, export various datas and write up.
+pickle.dump(apt, open('apt-tree.pkl', 'wb'))
+pickle.dump(pip, open('pip-tree.pkl', 'wb'))
+pickle.dump(seen, open('seen-containers.pkl', 'wb'))
+
+# Stopped at count 53854
+# container
+# 'booyaabes/kali-linux-full'
+# see seen.pkl to pick up, we are good to start with a set of this size:
+# len(seen) -> 19,501
+# len(apt.root.tags) -> 6025
+# len(pip.root.tags) -> 3685
+
+# Generate matrices for both
+pip_vectors = pip.export_vectors()
+# pip_vectors.shape
+# (3685, 1917)
+pip_vectors = pip_vectors.fillna(0)
+pip_vectors.to_csv('pip-vectors.csv')
+pip_vectors.to_pickle('pip-vectors.pkl')
+
+apt_vectors = apt.export_vectors()
+# apt_vectors.shape
+# (6025, 17194)
+apt_vectors = apt_vectors.fillna(0)
+apt_vectors.to_csv('apt-vectors.csv')
+apt_vectors.to_pickle('apt-vectors.pkl')

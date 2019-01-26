@@ -24,6 +24,10 @@ if token == None:
 # Load in package matrix for Pypi.
 metadata = dict()
 
+# If we've already started (or are updating)
+if os.path.exists('pypi-metadata.pkl'):
+    metadata = pickle.load(open('pypi-metadata.pkl', 'rb'))
+
 # Note - this had connection resets a few times
 # For each package, get metadata
 for p in range(0, len(pip.root.children)):
@@ -106,22 +110,63 @@ from containertree.utils import run_command
 # Inqlude
 
 # Instead, let's use a docker container to install a package and get
-# dependencies after
+# dependencies after. Kill subprocess if takes longer than 1 minute
+
+import multiprocessing
 
 apt = pickle.load(open('apt-tree.pkl', 'rb'))
 
-aptmeta = dict()
-for p in range(0, len(apt.root.children)):
-    node = apt.root.children[p]
-    package = node.label
-
-    # Skip over those we've already done
-    if package in aptmeta:
-        continue
-
-    print('Parsing %s, %s of %s' %(package, p, len(apt.root.children)))
+def worker(package, return_dict):
+    from containertree.utils import run_command
     command = ["docker", "run", "-it", "vanessa/ubuntu-dependencies:16.04", package]
     result = run_command(command)
-    dependencies = json.loads(result['message'])
-    print(dependencies)
-    aptmeta[package] = dependencies
+    return_dict[package] = result['message']
+
+aptmeta = dict()
+#aptmeta = pickle.load(open('apt-metadata.pkl', 'rb'))
+packages = apt.root.children.copy()
+for i in range(377, int(len(packages) / 5)):
+
+    # Grab 5 children to process
+    children = []
+    for c in range(5):
+        package = packages.pop(0).label
+
+        # Skip over those we've already done
+        if package in aptmeta:
+            continue
+
+        print('Parsing %s, %s of %s' %(package, i, len(apt.root.children)))
+        children.append(package)
+
+    if len(children) == 0:
+        continue
+
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+
+    jobs = []
+    for procnum in range(len(children)):
+        p = multiprocessing.Process(target=worker, name="docker", args=(children[procnum], return_dict,))
+        jobs.append(p)
+        p.start()
+
+    for proc in jobs:
+        # Timeout of one minute
+        proc.join(60)
+
+        # If it's still going, kill it
+        if proc.is_alive():
+            print('%s terminated, skipping' % proc)
+            proc.terminate()
+            proc.join()
+
+    for package, result in return_dict.items():
+        dependencies = json.loads(result)
+        print(dependencies)
+        aptmeta[package] = dependencies
+
+    pickle.dump(aptmeta, open('apt-metadata.pkl', 'wb'))
+
+with open('apt-metadata.json', 'w') as filey:
+    filey.writelines(json.dumps(aptmeta, indent=4))
