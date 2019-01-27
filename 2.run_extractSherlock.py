@@ -40,13 +40,16 @@ count = count_queue()
 # There are a total of 505234 unique names, 
 
 # For each container, run a container-diff job
+seen = []
 for name in names:
     print("Processing %s" % name)
     filename = name.replace('/','-')
+    if filename in seen:
+        continue
     file_name = ".job/%s.job" %(filename)
     output_json = os.path.join(output_dir, '%s.json' % filename)
     if not os.path.exists(output_json):
-        if count < job_limit:
+        if 0 < job_limit:
             with open(file_name, "w") as filey:
                 filey.writelines("#!/bin/bash\n")
                 filey.writelines("#SBATCH --job-name=%s\n" %filename)
@@ -61,6 +64,7 @@ for name in names:
                 filey.writelines("rm .out/%s.err\n" % filename)
 
             os.system("sbatch -p owners .job/%s.job" %filename)
+            seen.append(filename)
         else:
             jobs.append(file_name)
             time.sleep(1)
