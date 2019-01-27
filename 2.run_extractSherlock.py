@@ -33,7 +33,7 @@ def count_queue():
 
 # Step 2. Generate jobs, add any that don't get to run to list
 jobs = []
-job_limit = 1000
+job_limit = 2900
 
 count = count_queue()
 
@@ -42,14 +42,23 @@ count = count_queue()
 # For each container, run a container-diff job
 seen = []
 for name in names:
-    print("Processing %s" % name)
+    count = count_queue()
+    while count >= job_limit:
+        print('Waiting... %s' % count)
+        time.sleep(60)
+        count = count_queue()
     filename = name.replace('/','-')
     if filename in seen:
+        print('Finished... %s' % filename)
         continue
+    print("Processing %s" % name)
+    if len(seen) % 100 == 0:
+        pickle.dump(seen, open('seen-processing.pkl', 'wb'))
     file_name = ".job/%s.job" %(filename)
     output_json = os.path.join(output_dir, '%s.json' % filename)
     if not os.path.exists(output_json):
-        if 0 < job_limit:
+        count = count_queue()
+        if count < job_limit:
             with open(file_name, "w") as filey:
                 filey.writelines("#!/bin/bash\n")
                 filey.writelines("#SBATCH --job-name=%s\n" %filename)
@@ -62,11 +71,11 @@ for name in names:
                 filey.writelines("rm .job/%s.job\n" % filename)
                 filey.writelines("rm .out/%s.out\n" % filename)
                 filey.writelines("rm .out/%s.err\n" % filename)
-
             os.system("sbatch -p owners .job/%s.job" %filename)
             seen.append(filename)
+            time.sleep(1)
         else:
             jobs.append(file_name)
-            time.sleep(1)
+            time.sleep(60)
 
 # /bin/bash 2.extractSherlock.sh /scratch/users/vsochat/WORK/dockerfile-packages/container-diff/alerta-alerta-web.json alerta/alerta-web /scratch/users/vsochat/.singularity/docker
