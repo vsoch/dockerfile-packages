@@ -6,6 +6,7 @@ import time
 
 # Make directory for working
 # module load python/3.6.1
+# ml py-ipython/6.1.0_py36
 # pip install --user spython
 # pip install --user schemaorg
 # pip install --user ipython
@@ -36,7 +37,7 @@ job_limit = 1000
 
 count = count_queue()
 
-# There are a total of X names, 
+# There are a total of 505234 unique names, 
 
 # For each container, run a container-diff job
 for name in names:
@@ -54,7 +55,7 @@ for name in names:
                 filey.writelines("#SBATCH --time=30:00\n")
                 filey.writelines("#SBATCH --mem=8000\n")
                 filey.writelines('module load python/3.6.1\n')
-                filey.writelines("/bin/bash 3.extractSherlock.sh %s %s %s\n" % (output_json, name, cache_dir))
+                filey.writelines("/bin/bash 2.extractSherlock.sh %s %s %s\n" % (output_json, name, cache_dir))
                 filey.writelines("rm .job/%s.job\n" % filename)
                 filey.writelines("rm .out/%s.out\n" % filename)
                 filey.writelines("rm .out/%s.err\n" % filename)
