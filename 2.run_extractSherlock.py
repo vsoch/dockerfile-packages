@@ -41,6 +41,9 @@ count = count_queue()
 
 # For each container, run a container-diff job
 seen = []
+if os.path.exists('seen-processing.pkl'):
+    seen = pickle.load(open('seen-processing.pkl','rb'))
+
 for name in names:
     count = count_queue()
     while count >= job_limit:
