@@ -5,7 +5,7 @@ import pickle
 import time
 
 # Make directory for working
-# module load python/3.6.1
+#module load python/3.6.1
 # ml py-ipython/6.1.0_py36
 # pip install --user spython
 # pip install --user schemaorg
