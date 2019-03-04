@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import pickle
+import os
 from glob import glob
 
 # module load python/3.6.1
@@ -40,14 +41,60 @@ from containertree import ContainerPipTree
 
 pip = ContainerPipTree()
 
-seen = set()
-
 # Parse output files from container-diff
-diffs = glob('/scratch/users/vsochat/WORK/dockerfile-packages/container-diff/*.json')
+diffs = glob('container-diff/*.json')
 pickle.dump(diffs, open('diffs.pkl','wb'))
 
 # len(diffs)
-# 151427
+#  187449
+
+seen = set()
+for diff in diffs:
+    tag = os.path.basename(diff).replace('-','/', 1).replace('.json','')
+    if tag in seen:
+        continue
+    seen.add(tag)
+    try:
+        pip.update(diff, tag=tag)
+    except TypeError:
+        pass
+    except: #JSONDecodeError:
+        pass
+
+# Next add scraped containers from 2017-2019
+count = 0
+for container in containers:
+
+    if container in pip.root.tags:
+        continue
+
+    if count % 1000 == 0:
+        pickle.dump(pip, open('pip-tree-x.pkl', 'wb'))
+        pickle.dump(seen, open('seen-containers.pkl', 'wb'))
+
+    if container in seen:
+        continue
+
+    print('Adding %s' % container)
+    try:
+        pip.update(container, tag=container)
+    except TypeError:
+        pass
+
+    seen.add(container)
+    count +=1
+
+pickle.dump(pip, open('pip-tree-x.pkl', 'wb'))
+pickle.dump(seen, open('seen-containers.pkl', 'wb'))
+
+################################################################################
+# Apt Trees!
+# We don't have metadata for apt so its not the analysis focus
+################################################################################
+
+from containertree import ContainerAptTree
+
+apt = ContainerAptTree()
 
 seen = []
 for diff in diffs:
@@ -56,11 +103,18 @@ for diff in diffs:
         continue
     seen.append(tag)
     try:
-        pip.update(diff, tag=tag)
+        apt.update(diff, tag=tag)
     except TypeError:
         pass
+    except: #JSONDecodeError:
+        pass
 
+# len(pip.root.tags)
+# 56525
+# len(pip.root.children) -> 6387
 
+# We would need to extract these packages... takes too long on local machine.
+# Next add scraped containers from 2017-2019
 count = 1000
 for container in containers:
 
@@ -85,6 +139,12 @@ for container in containers:
 pickle.dump(pip, open('pip-tree.pkl', 'wb'))
 pickle.dump(seen, open('seen-containers.pkl', 'wb'))
 
+
+
+
+
+
+
 # Stopped at count 53854
 # container
 # 'booyaabes/kali-linux-full'
@@ -100,6 +160,12 @@ pip_vectors = pip.export_vectors()
 pip_vectors = pip_vectors.fillna(0)
 pip_vectors.to_csv('pip-vectors.csv')
 pip_vectors.to_pickle('pip-vectors.pkl')
+
+# vectors.shape (69380, 7046)
+vectors.to_csv('pip-vectors-3-3-2019.csv')
+vectors.to_pickle('pip-vectors-3-3-2019.pkl')
+vectors = vectors.fillna(0)
+vectors.to_sparse()
 
 apt_vectors = apt.export_vectors()
 # apt_vectors.shape
